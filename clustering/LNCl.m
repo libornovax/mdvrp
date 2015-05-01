@@ -11,8 +11,8 @@ function assignments = LNCl( customers, depots, depot_capacity )
 
 %% Settings
 opt.pop_size = 100; % Must be even!! and even after division by 2
-opt.max_evolutions = 200;
-opt.prob_crossover = 0.5;
+opt.max_evolutions = 100;
+opt.prob_crossover = 0.8;
 opt.prob_mutation = 0.02;
 opt.tournament_size = 5;
 
@@ -26,7 +26,7 @@ for ii = 1:num_customers
         D(ii,jj) = sum((customers(ii,1:2) - customers(jj,1:2)).^2);
     end
 end
-[D_sorted, I] = sort(D, 2);
+[D_sorted, I] = sort(D, 2, 'ascend');
 
 
 %% Initialize population
@@ -52,18 +52,17 @@ for e = 1:opt.max_evolutions
     ftns = [ftns min(fitness)];
     disp([ '[' num2str(e) '] Best fitness: ' num2str(ftns(end)) ]);
     
-%     % Inject new individuals - after some time to restore the population
-%     if mod(e, 50) == 0
-%         alter_population = ceil(rand(num_customers, opt.pop_size/4) * num_depots);
-%         for i = 1:size(alter_population, 2)
-%             alter_population(:,i) = repairIndividual(alter_population(:,i), customers, depots, depot_capacity);
-%         end
-%         
-%         [fts, idfs] = sort(fitness, 'descend');
-%         idfs = idfs(1:opt.pop_size/4);
-% %         population = [population alter_population];
-%         population(:,idfs) = alter_population;
-%     end
+    % Inject new individuals - after some time to restore the population
+    if mod(e, 50) == 0
+        alter_population = ceil(rand(num_customers, opt.pop_size/4) * num_depots);
+        for i = 1:size(alter_population, 2)
+            alter_population(:,i) = repairIndividual(alter_population(:,i), customers, depots, depot_capacity);
+        end
+        
+        [fts, idfs] = sort(fitness, 'descend');
+        idfs = idfs(1:opt.pop_size/4);
+        population(:,idfs) = alter_population;
+    end
     
     plot(ftns);
     pause(0.01);
@@ -90,8 +89,8 @@ for e = 1:opt.max_evolutions
     % Tournament selection
     while length(parents) < size(population, 2)
         % Randomly select tournament_size individuals
-        tournament = randsample(size(population, 2), opt.tournament_size, false);
-%         tournament = randsample(size(population, 2), opt.tournament_size, true, w);
+%         tournament = randsample(size(population, 2), opt.tournament_size, false);
+        tournament = randsample(size(population, 2), opt.tournament_size, true, w);
         
         % Select the best one and add to parents
         sel = find(fitness(tournament) == min(fitness(tournament)));

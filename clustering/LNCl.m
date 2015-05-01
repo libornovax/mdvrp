@@ -26,7 +26,7 @@ for ii = 1:num_customers
         D(ii,jj) = sum((customers(ii,1:2) - customers(jj,1:2)).^2);
     end
 end
-[D_sorted, I] = sort(D, 2, 'ascend');
+
 
 
 %% Initialize population
@@ -44,11 +44,11 @@ end
 
 
 %% Evolve the population
-figure;
+f = figure;
 ftns = [];
 for e = 1:opt.max_evolutions
     % Compute fitness' of individuals
-    fitness = LNClFitness(population, customers, depots, D, I);
+    fitness = LNClFitness(population, customers, depots, D);
     ftns = [ftns min(fitness)];
     disp([ '[' num2str(e) '] Best fitness: ' num2str(ftns(end)) ]);
     
@@ -64,7 +64,7 @@ for e = 1:opt.max_evolutions
         population(:,idfs) = alter_population;
     end
     
-    plot(ftns);
+    figure(f); plot(ftns);
     pause(0.01);
     
     %% Selection
@@ -75,22 +75,21 @@ for e = 1:opt.max_evolutions
     % Elitism
     parents = find(fitness == min(fitness)); % Best individual
     
-    % Measure similarity of individuals - compute the number of similar
+    % Measure the similarity of the individuals - compute the number of similar
     % assignments in the population
     similarity = zeros(1, size(population, 2));
     for i = 1:size(population, 2)
         similarity(i) = sum(sum(population == repmat(population(:,i), 1, size(population, 2)))) / size(population, 2);
-%         similarity(i) = mean(sum(population == repmat(population(:,i), 1, size(population, 2)), 1)) / (size(population, 2)*num_customers);
     end
     disp(['Similarity: ' num2str(mean(similarity))]);
-    similaritym = similarity - min(similarity);
-    w = 1 - (similaritym / max(similaritym));
+%     similaritym = similarity - min(similarity);
+    w = 1 - (similarity / max(similarity));
     
     % Tournament selection
     while length(parents) < size(population, 2)
         % Randomly select tournament_size individuals
-%         tournament = randsample(size(population, 2), opt.tournament_size, false);
-        tournament = randsample(size(population, 2), opt.tournament_size, true, w);
+        tournament = randsample(size(population, 2), opt.tournament_size, false);
+%         tournament = randsample(size(population, 2), opt.tournament_size, true, w);
         
         % Select the best one and add to parents
         sel = find(fitness(tournament) == min(fitness(tournament)));
@@ -163,7 +162,7 @@ end
 
 
 %% Extract the best individual from the final population
-fitness = LNClFitness(population, customers, depots, D, I);
+fitness = LNClFitness(population, customers, depots, D);
 assignments = population(:,fitness == min(fitness));
 assignments = assignments(:,1); % There can be more individuals with the min fitness
 

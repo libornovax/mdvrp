@@ -4,13 +4,13 @@ function [ output_args ] = runMDVRP( filename, cluster_method )
 %   1) Cluster the costomers
 %   2) Solve VRP for each cluster
 
-figure;
+
 
 %% Load the dataset
 [customers, depots, loads, durations, num_vehicles] = loadDataset(filename);
 
 % Show the loaded data
-subplot(2,2,1);
+figure;
 showDataset(customers, depots);
 title('Dataset');
 
@@ -40,7 +40,7 @@ switch cluster_method
 end
 
 % Show the clusters
-subplot(2,2,2);
+figure;
 showClusters(customers, depots, assignments);
 title('Depot assignment');
 
@@ -59,7 +59,7 @@ end
 
 % draw routes
 figure;
-showDataset(customers, depots);
+showDataset(customers, depots, 1);
 hold on
 rtl = 0;
 for i = 1:length(routes)

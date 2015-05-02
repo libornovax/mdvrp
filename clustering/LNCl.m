@@ -11,7 +11,7 @@ function assignments = LNCl( customers, depots, depot_capacity )
 
 %% Settings
 opt.pop_size = 100; % Must be even!! and even after division by 2
-opt.max_evolutions = 100;
+opt.max_evolutions = 99;
 opt.prob_crossover = 0.8;
 opt.prob_mutation = 0.02;
 opt.tournament_size = 5;
@@ -64,7 +64,7 @@ for e = 1:opt.max_evolutions
         population(:,idfs) = alter_population;
     end
     
-    figure(f); plot(ftns);
+    figure(f); plot(ftns); title('Fitness evolution'); xlabel('Generation'); ylabel('Fitness'); grid on
     pause(0.01);
     
     %% Selection
@@ -165,6 +165,50 @@ end
 fitness = LNClFitness(population, customers, depots, D);
 assignments = population(:,fitness == min(fitness));
 assignments = assignments(:,1); % There can be more individuals with the min fitness
+
+
+%% Some fitness functions do not consider the depots
+% Change the assignment of the clusters in a way the distance from each
+% depot to the two closest customers is minimized
+rows = size(customers, 1);
+cols = size(depots, 1);
+Dd = zeros(rows, cols);
+for i = 1:rows
+    for j = 1:cols
+        Dd(i,j) = sum((customers(i,1:2) - depots(j,1:2)).^2);
+    end
+end
+
+% Combine depots and clusters each with each and find minimum
+Ddc = zeros(cols, cols); % i = cluster, j = depot
+for i = 1:cols
+    % cluster
+    [Dd_sorted, Id] = sort(Dd(assignments == i,:), 1);
+    
+    % Add distance to the 2 closest
+    Ddc(i,:) = sum(Dd_sorted(1:2,:), 1);
+end
+
+% Try all combinations of assignments and choose the best one
+comb = perms(1:cols);
+best = inf;
+best_comb = zeros(1,cols);
+for i = 1:size(comb,1)
+    s = sum(Ddc(sub2ind(size(Ddc), comb(i,:), 1:cols)));
+    if s < best
+        best = s;
+        best_comb = comb(i,:);
+    end
+end
+
+% Assign the found best combination
+new_assignment = assignments;
+for i = 1:cols
+    % For each depot assign cluster
+    new_assignment(assignments == best_comb(i)) = i;
+end
+assignments = new_assignment;
+
 
 end
 

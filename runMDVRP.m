@@ -1,4 +1,4 @@
-function [ output_args ] = runMDVRP( filename, cluster_method )
+function [ assignments, routes ] = runMDVRP( filename, cluster_method )
 % Loads the data and solves the multi depot vehicle routing problem (MDVRP)
 % in two steps:
 %   1) Cluster the costomers

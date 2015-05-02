@@ -126,11 +126,11 @@ while length(routes) > 1
                 end
             end
             
-            if duration >= routeLength(customers, depot, new_route)
+%             if duration >= routeLength(customers, depot, new_route)
                 % the duration does not exceed the limit
                 routes{ri} = new_route;
                 routes(rj) = [];
-            end
+%             end
 %         end
     end
     

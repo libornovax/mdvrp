@@ -8,6 +8,7 @@ scatter(depots(:,1), depots(:,2), 50, [1:size(depots,1)]', 's', 'MarkerFaceColor
 
 axis equal
 hold off
+legend('Customers', 'Depots')
 
 end
 

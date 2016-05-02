@@ -5,13 +5,13 @@ fitness = zeros(1, size(population, 2));
 
 
 %% Distance from each customer to thr closest depot - like K-means
-% for i = 1:length(fitness)
-%     % For each individual compute fitness
-%     assigned_depots = depots(population(:,i), :);
-%     dsts = sum((customers(:,1:2) - assigned_depots).^2);
-%     
-%     fitness(i) = sum(dsts);
-% end
+for i = 1:length(fitness)
+    % For each individual compute fitness
+    assigned_depots = depots(population(:,i), :);
+    dsts = sum((customers(:,1:2) - assigned_depots).^2);
+    
+    fitness(i) = sum(dsts);
+end
 
 
 %% %%%%%%%%%%%%%%  NEW FITNESS FUNCTIONS %%%%%%%%%%%%%% %%
@@ -61,44 +61,44 @@ fitness = zeros(1, size(population, 2));
 % Note: But I still get some, the compactness or route is not ideal
 %
 
-num_depots = size(depots, 1);
-for i = 1:length(fitness)
-    % For each individual compute fitness
-    for d = 1:num_depots
-        % For each depot compute the evaluation
-        
-        fitness_min = inf;
-        % We are trying several different orders to find the best fitness
-        % evaluation - a little bit like RANSAC
-        for fl = 1:10
-            fitness_cur = 0;
-            
-            csi = find(population(:,i) == d);
-            csi = csi(randperm(length(csi))); % If we change the order of the customers the fitness could be better!
-
-            while length(csi) > 1
-                % Sort the customers that are still considered (with
-                % respect to the distance to the first customer
-                [D_sorted, Icurrent] = sort(D(csi(1),csi), 2, 'ascend');
-                customers_current = customers(csi,:);
-
-                closest = Icurrent(1, 2); % closest customer to the first one
-
-                dst = sum((customers_current(1,1:2) - customers_current(closest,1:2)).^2, 2);
-                fitness_cur = fitness_cur + dst;
-
-                % Remove the already used costomer
-                csi(1) = [];
-            end
-            
-            if fitness_cur < fitness_min
-                fitness_min = fitness_cur;
-            end
-        end
-        
-        fitness(i) = fitness(i) + fitness_min;
-    end
-end
+% num_depots = size(depots, 1);
+% for i = 1:length(fitness)
+%     % For each individual compute fitness
+%     for d = 1:num_depots
+%         % For each depot compute the evaluation
+%         
+%         fitness_min = inf;
+%         % We are trying several different orders to find the best fitness
+%         % evaluation - a little bit like RANSAC
+%         for fl = 1:10
+%             fitness_cur = 0;
+%             
+%             csi = find(population(:,i) == d);
+%             csi = csi(randperm(length(csi))); % If we change the order of the customers the fitness could be better!
+% 
+%             while length(csi) > 1
+%                 % Sort the customers that are still considered (with
+%                 % respect to the distance to the first customer
+%                 [D_sorted, Icurrent] = sort(D(csi(1),csi), 2, 'ascend');
+%                 customers_current = customers(csi,:);
+% 
+%                 closest = Icurrent(1, 2); % closest customer to the first one
+% 
+%                 dst = sum((customers_current(1,1:2) - customers_current(closest,1:2)).^2, 2);
+%                 fitness_cur = fitness_cur + dst;
+% 
+%                 % Remove the already used costomer
+%                 csi(1) = [];
+%             end
+%             
+%             if fitness_cur < fitness_min
+%                 fitness_min = fitness_cur;
+%             end
+%         end
+%         
+%         fitness(i) = fitness(i) + fitness_min;
+%     end
+% end
 
 
 %% No. 2 EDIT - Smarter pairing
